@@ -120,4 +120,4 @@ The following Docker images are used in this sample
 * [.NET Core Docker samples](../README.md)
 * [.NET Framework Docker samples](https://github.com/Microsoft/dotnet-framework-docker-samples)
 
-TEST7
+TEST8
