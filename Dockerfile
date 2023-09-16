@@ -1,21 +1,17 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+FROM mcr.microsoft.com/dotnet/sdk:3.1 AS builder
 
-FROM mcr.microsoft.com/dotnet/aspnet:3.1 AS base
-WORKDIR /app
-EXPOSE 80
-
-FROM mcr.microsoft.com/dotnet/sdk:3.1 AS build
-WORKDIR /src
-COPY ["aspnetapp/aspnetapp.csproj", "aspnetapp/"]
-RUN dotnet restore "aspnetapp/aspnetapp.csproj"
 COPY . .
-WORKDIR "/src/aspnetapp"
-RUN dotnet build "aspnetapp.csproj" -c Release -o /app/build
 
-FROM build AS publish
-RUN dotnet publish "aspnetapp.csproj" -c Release -o /app/publish
+WORKDIR /src
 
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
+RUN dotnet restore
+
+RUN dotnet publish aspnetapp/aspnetapp.csproj -c Release -o /app
+
+RUN dotnet test --logger "trx;LogFileName=./aspnetapp.trx"
+
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
+
+COPY --from=builder /app .
+
 ENTRYPOINT ["dotnet", "aspnetapp.dll"]
